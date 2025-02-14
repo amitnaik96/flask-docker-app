@@ -21,9 +21,12 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker stop flask_app || true'
-                bat 'docker rm flask_app || true'
-                bat 'docker run -d -p 5000:5000 --name flask_app flask-docker-app'
+                // Stop and remove the container if it exists
+                bat '''
+                docker ps -q --filter "name=flask_app" && docker stop flask_app || echo "Container not running"
+                docker ps -a -q --filter "name=flask_app" && docker rm flask_app || echo "No container to remove"
+                docker run -d -p 5000:5000 --name flask_app flask-docker-app
+                '''
             }
         }
 
